@@ -1,1 +1,6 @@
+import MySQLdb
 
+db = MySQLdb.connect("localhost", "EJ", "EJ", "mydatabase")
+cursor = db.cursor()
+cursor.execute("CREATE DATABASE mydatabase")
+db.close()
