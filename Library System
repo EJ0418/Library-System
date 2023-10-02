@@ -1,6 +1,41 @@
+import mysql.connector
 import MySQLdb
 
-db = MySQLdb.connect("localhost", "EJ", "EJ", "mydatabase")
+cn = mysql.connector.connect(host = 'localhost',
+                             port = '3306',
+                             user = 'EJ',
+                             password = '1212000')
+db = MySQLdb.connect("localhost", "EJ", "1212000", "Library")
+
 cursor = db.cursor()
-cursor.execute("CREATE DATABASE mydatabase")
+
+'''建立書籍表格'''
+#cursor.execute("DROP DATABASE Library")
+#cursor.execute("CREATE DATABASE Library")
+#cursor.execute("USE Library")
+#cursor.execute("DROP TABLE BOOK")
+create_table = """CREATE TABLE BOOK (
+                    ID INT(11) NOT NULL AUTO_INCREMENT,
+                    BOOK_NAME CHAR(20) NOT NULL,
+                    PUBLISHER CHAR(20),
+                    PRIMARY KEY (ID)
+                    )DEFAULT CHARSET = utf8"""
+cursor.execute(create_table)
+
+'''加入書名與出版社名'''
+while True:
+    book_name = input('BOOK NAME：')
+    publisher = input('BOOK PUBLISHER：')
+    add_book = """INSERT INTO BOOK(BOOK_NAME, PUBLISHER)
+                    VALUES ( %s, %s)"""
+    book_data = (book_name, publisher)
+    cursor.execute(add_book, book_data)
+    db.commit()
+    continue_adding = input('continue? y/n')
+    if continue_adding == 'y' or continue_adding == 'yes':
+        continue
+    else:
+        break
+        
+        
 db.close()
