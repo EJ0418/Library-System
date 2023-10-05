@@ -1,15 +1,15 @@
 import MySQLdb
 from tkinter import *
-db = MySQLdb.connect("localhost", "EJ", "********", "Library")
+db = MySQLdb.connect("localhost", "EJ", "1212000", "Library")
         
 class Tables():
-    def __init__(self, table_name):
-        self.table = table_name
+    def __init__(self):
+        self.table = '書籍&使用者資料庫'
 
     def create_book_table(self):
-        self.cursor = db.cursor()
+        cursor = db.cursor()
         try:
-            self.cursor.execute(f"""CREATE TABLE {self.table} (
+            cursor.execute("""CREATE TABLE BOOK (
                     ISBN CHAR(20) NOT NULL,
                     BOOK_NAME CHAR(20) NOT NULL,
                     AUTHOR CHAR(20),
@@ -21,14 +21,14 @@ class Tables():
             db.commit()
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("書籍資料庫建立錯誤：", e)
         finally:
-            self.cursor.close()
+            cursor.close()
             
     def create_user_table(self):
-        self.cursor = db.cursor()
+        cursor = db.cursor()
         try:
-            self.cursor.execute(f"""CREATE TABLE {self.table} (
+            cursor.execute("""CREATE TABLE USER (
                     USER_ID INT(11) NOT NULL AUTO_INCREMENT,
                     NAME CHAR(20) NOT NULL,
                     GENDER CHAR(20),
@@ -39,21 +39,21 @@ class Tables():
             db.commit()
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("使用者資料庫建立錯誤：", e)
         finally:
-            self.cursor.close()
+            cursor.close()
             
-    def modify_tables(self, input_order):
+    def edit_tables(self, input_order):
         self.order = input_order
-        self.cursor = db.cursor()
+        cursor = db.cursor()
         try:
-            self.cursor.execute(f"""{self.order}""")
+            cursor.execute(f"""{self.order}""")
             db.commit()
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("資料庫編輯錯誤：", e)
         finally:
-            self.cursor.close()
+            cursor.close()
 
     
 class Users():
@@ -90,7 +90,7 @@ class Users():
             print('已借閱：{}'.format(self.book_shell))
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("借書錯誤：", e)
         finally:
             cursor.close()
             
@@ -106,9 +106,25 @@ class Users():
             print('已借閱：{}'.format(self.book_shell))
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("還書錯誤：", e)
         finally:
             cursor.close()
+            
+class Sys_ctrl():
+    
+    def __init__(self):
+        self.sys = ''
+        
+    def origin_tables(self):
+        origin_table = Tables()
+        origin_table.create_book_table()
+        origin_table.create_user_table()
+        
+    def edit(self):
+        new_order = Tables(new_orders)
+        order = self.add_orders
+        new_order.edit_table(order)
+        
             
 ##使用者登入系統頁面
 class Platform():
@@ -164,7 +180,8 @@ class Platform():
                             bg = '#CCCCCC',
                             fg = '#000000',
                             activebackground = '#FFFFFF',
-                            activeforeground = '#000000')
+                            activeforeground = '#000000',
+                           command = self.sys_admin)
         sys_button.pack(fill='x',
                          expand=True)
 
@@ -270,7 +287,7 @@ class Platform():
         
     def create_user(self):
         
-        #self.newuser_platform.destroy()
+        self.newuser_platform.destroy()
         
         cursor = db.cursor()
         try:
@@ -291,9 +308,8 @@ class Platform():
             cursor.close()
             
  
-##圖書館管理員系統頁面
-
-    def librarian_platform():
+    ##圖書館管理員系統頁面
+    def librarian_platform(self):
 
         self.origin_platform.destroy()
 
@@ -374,7 +390,7 @@ class Platform():
           
 
 
-    def add_books():
+    def add_books(self):
         cursor = db.cursor()
         try:
             isbn = self.add_isbn.get()
@@ -401,21 +417,26 @@ class Platform():
             self.add_translator.delete(0, END)
             self.add_publisher.delete(0, END)
             self.add_nums.delete(0, END)
-        
-                    
-'''建立書籍&讀者資料庫'''
-book_table = Tables('BOOK')
-book_table.create_book_table()
-user_table = Tables('USER')
-user_table.create_user_table()
+    
+    def sys_admin(self):
 
-modify_table = input('要變更表格嗎? y/n')
-if modify_table == 'y':
-    new_order = Tables('new_orders')
-    order = input('指令：')
-    new_order.modify_table(order)
-else:
-    print('好的')
+        self.origin_platform.destroy()
+
+        self.sys_admin_platform = Tk(className = '編輯資料庫')
+
+        order_label = Label(self.sys_admin_platform,
+                           text = '指令：',
+                           height = 1)
+        order_label.pack(side = LEFT,
+                        fill = 'x',
+                        expand = True)
+
+        self.add_orders = Text(self.sys_admin_platform)
+        self.add_orders.pack()
+
+        self.sys_admin_platform.mainloop()
+        
+        
 
     
 '''帳號使用：查詢、借書、還書'''    
