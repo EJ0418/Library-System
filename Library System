@@ -1,5 +1,6 @@
 import MySQLdb
-db = MySQLdb.connect("localhost", "EJ", "1212000", "Library")
+from tkinter import *
+db = MySQLdb.connect("localhost", "EJ", "********", "Library")
         
 class Tables():
     def __init__(self, table_name):
@@ -9,7 +10,7 @@ class Tables():
         self.cursor = db.cursor()
         try:
             self.cursor.execute(f"""CREATE TABLE {self.table} (
-                    ISBN INT(11) NOT NULL,
+                    ISBN CHAR(20) NOT NULL,
                     BOOK_NAME CHAR(20) NOT NULL,
                     AUTHOR CHAR(20),
                     TRANSLATOR CHAR(20),
@@ -30,9 +31,9 @@ class Tables():
             self.cursor.execute(f"""CREATE TABLE {self.table} (
                     USER_ID INT(11) NOT NULL AUTO_INCREMENT,
                     NAME CHAR(20) NOT NULL,
-                    AGE INT(11),
                     GENDER CHAR(20),
-                    PHONE INT(11),
+                    AGE CHAR(20),
+                    PHONE CHAR(20),
                     PRIMARY KEY(USER_ID)
                     )DEFAULT CHARSET = utf8""")
             db.commit()
@@ -108,13 +109,303 @@ class Users():
             print("錯誤：", e)
         finally:
             cursor.close()
-
-    
-          
             
+##使用者登入系統頁面
+class Platform():
+
+    def __init__(self):
+        self.library = 'EJs Library'
+        
+    def start(self):
+        self.origin_platform = Tk(className = 'EJs Library')
+
+        lable_title = Label(self.origin_platform,
+                       text = '歡迎來到EJ的圖書館！',
+                       height = 2,
+                       bg = '#99CCFF')
+        lable_title.pack(side = TOP,
+                    fill='x',
+                    expand=True)
+
+        lable_asking = Label(self.origin_platform,
+                       text = '請選擇登入身分：',
+                       height = 1,
+                       bg = '#FFFFFF')
+        lable_asking.pack(side = TOP,
+                    fill='x',
+                    expand=True)
+
+        user_button = Button(self.origin_platform,
+                            text = '使用者',
+                            height = 5,
+                            bg = '#CCCCFF',
+                            fg = '#000000',
+                            activebackground = '#FFFFFF',
+                            activeforeground = '#000000',
+                            command = self.enter_user_platform)
+        user_button.pack(side = 'top',
+                         fill='both',
+                         expand=True)
+
+        lib_button = Button(self.origin_platform,
+                            text = '圖書館管理員',
+                            height = 5,
+                            bg = '#CCCCFF',
+                            fg = '#000000',
+                            activebackground = '#FFFFFF',
+                            activeforeground = '#000000',
+                            command = self.librarian_platform)
+        lib_button.pack(fill='both',
+                        expand=True)
+
+        sys_button = Button(self.origin_platform,
+                            text = '系統管理員',
+                            height = 1,
+                            bg = '#CCCCCC',
+                            fg = '#000000',
+                            activebackground = '#FFFFFF',
+                            activeforeground = '#000000')
+        sys_button.pack(fill='x',
+                         expand=True)
+
+        self.origin_platform.mainloop()     
+
+    def enter_user_platform(self):
+        
+        self.origin_platform.destroy()
+        
+        self.user_platform = Tk(className = '登入')
+
+        login_label = Label(self.user_platform,
+                       text = '電話號碼登入：',
+                       height = 1)
+        login_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+
+        login = Entry(self.user_platform,
+                      width = 20)
+        login.pack(side = LEFT)
+
+        login_button = Button(self.user_platform,
+                             text = '登入',
+                             width = 10,
+                             height = 1,
+                             bg = '#99CCFF',
+                             fg = '#000000',
+                             activebackground = '#FFFFFF',
+                             activeforeground = '#000000')
+        login_button.pack(side = LEFT)
+
+        signup_button = Button(self.user_platform,
+                        text = '註冊會員',
+                        width = 10,
+                        height = 1,
+                        fg = '#000000',
+                        activebackground = '#FFFFFF',
+                        activeforeground = '#000000',
+                        command = self.create_account_platform)
+        signup_button.pack(side = LEFT)
+
+        self.user_platform.mainloop() 
+ 
+    def create_account_platform(self):
+        
+        self.user_platform.destroy()
+        
+        self.newuser_platform = Tk(className = '註冊帳號')
+
+        add_username_label = Label(self.newuser_platform,
+                       text = '姓名：',
+                       height = 1)
+        add_username_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_username = Entry(self.newuser_platform,
+                      width = 20)
+        self.add_username.pack(side = LEFT)
+
+        add_gender_label = Label(self.newuser_platform,
+                       text = '性別(F/M)：',
+                       height = 1)
+        add_gender_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_gender = Entry(self.newuser_platform,
+                      width = 20)
+        self.add_gender.pack(side = LEFT)
+
+        add_age_label = Label(self.newuser_platform,
+                       text = '年齡：',
+                       height = 1)
+        add_age_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_age = Entry(self.newuser_platform,
+                      width = 20)
+        self.add_age.pack(side = LEFT)
+
+        add_phone_label = Label(self.newuser_platform,
+                       text = '電話：',
+                       height = 1)
+        add_phone_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_phone = Entry(self.newuser_platform,
+                      width = 20)
+        self.add_phone.pack(side = LEFT)
+
+        signup_button = Button(self.newuser_platform,
+                          text = '註冊',
+                          width = 10,
+                          height = 1,
+                          bg = '#99CCFF',
+                          fg = '#000000',
+                          activebackground = '#FFFFFF',
+                          activeforeground = '#000000',
+                          command = self.create_user)
+        signup_button.pack(side = LEFT)
+
+        self.newuser_platform.mainloop()
+        
+    def create_user(self):
+        
+        #self.newuser_platform.destroy()
+        
+        cursor = db.cursor()
+        try:
+            user_name = self.add_username.get()
+            age = self.add_age.get()
+            gender = self.add_gender.get()
+            phone = self.add_phone.get()
+            add_user = """INSERT INTO USER 
+                            (NAME, AGE, GENDER, PHONE)
+                            VALUE (%s, %s, %s, %s)"""
+            user_data = (user_name, age, gender, phone)
+            cursor.execute(add_user, user_data) 
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print("錯誤：", e)
+        finally:
+            cursor.close()
+            
+ 
+##圖書館管理員系統頁面
+
+    def librarian_platform():
+
+        self.origin_platform.destroy()
+
+        self.librarian_platform = Tk(className = '新增書籍')
+
+        add_isbn_label = Label(self.librarian_platform,
+                       text = 'ISBN編碼：',
+                       height = 1)
+        add_isbn_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_isbn = Entry(self.librarian_platform,
+                      width = 20)
+        self.add_isbn.pack(side = LEFT)
+
+        add_bookname_label = Label(self.librarian_platform,
+                       text = '書籍名稱：',
+                       height = 1)
+        add_bookname_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_bookname = Entry(self.librarian_platform,
+                      width = 20)
+        self.add_bookname.pack(side = LEFT)
+
+        add_author_label = Label(self.librarian_platform,
+                       text = '作者：',
+                       height = 1)
+        add_author_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_author = Entry(self.librarian_platform,
+                      width = 20)
+        self.add_author.pack(side = LEFT)
+
+        add_translator_label = Label(self.librarian_platform,
+                       text = '譯者：',
+                       height = 1)
+        add_translator_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_translator = Entry(self.librarian_platform,
+                      width = 20)
+        self.add_translator.pack(side = LEFT)
+
+        add_publisher_label = Label(self.librarian_platform,
+                       text = '出版社：',
+                       height = 1)
+        add_publisher_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_publisher = Entry(self.librarian_platform,
+                      width = 20)
+        self.add_publisher.pack(side = LEFT)
+
+        add_nums_label = Label(self.librarian_platform,
+                       text = '書本數量：',
+                       height = 1)
+        add_nums_label.pack(side = LEFT,
+                    fill='x',
+                    expand=True)
+        self.add_nums = Entry(self.librarian_platform,
+                      width = 20)
+        self.add_nums.pack(side = LEFT)
+
+        adding_button = Button(self.librarian_platform,
+                          text = '新增',
+                          width = 10,
+                          height = 1,
+                          bg = '#99CCFF',
+                          fg = '#000000',
+                          activebackground = '#FFFFFF',
+                          activeforeground = '#000000',
+                          command = self.add_books)
+        adding_button.pack(side = LEFT)
+
+        self.librarian_platform.mainloop()    
+          
+
+
+    def add_books():
+        cursor = db.cursor()
+        try:
+            isbn = self.add_isbn.get()
+            book_name = self.add_bookname.get()
+            author = self.add_author.get()
+            translator = self.add_translator.get()
+            publisher = self.add_publisher.get()
+            nums = self.add_nums.get()
+
+            add_book = """INSERT INTO BOOK 
+                            (ISBN, BOOK_NAME, AUTHOR,TRANSLATOR, PUBLISHER, NUMS)
+                            VALUES (%s, %s, %s, %s, %s, %s)"""
+            book_data = (isbn, book_name, author, translator, publisher, nums)
+            cursor.execute(add_book, book_data)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print("錯誤：", e)
+        finally:
+            cursor.close()
+            self.add_isbn.delete(0, END)
+            self.add_bookname.delete(0, END)
+            self.add_author.delete(0, END)
+            self.add_translator.delete(0, END)
+            self.add_publisher.delete(0, END)
+            self.add_nums.delete(0, END)
+        
+                    
 '''建立書籍&讀者資料庫'''
-#book_table = Tables('BOOK')
-#book_table.create_book_table()
+book_table = Tables('BOOK')
+book_table.create_book_table()
 user_table = Tables('USER')
 user_table.create_user_table()
 
@@ -147,143 +438,7 @@ if search_book == 'y':
 else:
     print('不查詢書籍')
 
-    
-'''新增書籍資料'''
-add_books = input('要加入書籍嗎? y/n')
-if add_books == 'y':
-    while True:
-        cursor = db.cursor()
-        try:
-            isbn = input('ISBN編碼：')
-            book_name = input('書名：')
-            author = input('作者:')
-            translator = input('譯者：')
-            publisher = input('出版社：')
-            nums = input('書本數量：')
 
-            add_book = """INSERT INTO BOOK 
-                            (ISBN, BOOK_NAME, AUTHOR,TRANSLATOR, PUBLISHER, NUMS)
-                            VALUES (%s, %s, %s, %s, %s, %s)"""
-            book_data = (isbn, book_name, author, translator, publisher, nums)
-            cursor.execute(add_book, book_data)
-            db.commit()
-        except Exception as e:
-            db.rollback()
-            print("錯誤：", e)
-        finally:
-            cursor.close()
-            
-            continue_adding = input('continue? y/n')
-            if continue_adding != 'y':
-                break  
-
-'''新增讀者資料'''
-add_users = input('要加入會員嗎? y/n')
-if add_users == 'y':
-    cursor = db.cursor()
-    try:
-        user_name = input('姓名：')
-        age = input('年齡：')
-        gender = input('性別(F/M)：')
-        phone = input('電話：')
-        add_user = """INSERT INTO USER 
-                        (NAME, AGE, GENDER, PHONE)
-                        VALUE (%s, %s, %s, %s)"""
-        user_data = (user_name, age, gender, phone)
-        cursor.execute(add_user, user_data) 
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        print("錯誤：", e)
-    finally:
-        cursor.close()
-
-        
-        
-from tkinter import *
-
-def enter_user_platform():
-    origin_platform.destroy()
-    
-    user_platform = Tk(className = '登入')
-
-    '''
-    lable_asking = Label(user_platform,
-                        text = '登入會員',
-                        height = 2,
-                        bg = '#99CCFF')
-    lable_asking.pack(side = TOP,
-                     fill = 'x',
-                     expand = True)
-    '''
-
-    enter = Text(user_platform,
-                height = 2,
-                width = 30)
-    enter.insert(INSERT, '電話號碼登入：')
-    enter.pack(side = LEFT)
-
-    enter_button = Button(user_platform,
-                         text = '登入',
-                         width = 20,
-                         height = 2,
-                         bg = '#99CCFF',
-                         fg = '#000000',
-                         activebackground = '#FFFFFF',
-                         activeforeground = '#000000')
-    enter_button.pack(side = LEFT)
-    user_platform.mainloop()    
-
-
-origin_platform = Tk(className = 'EJs Library')
-
-lable_title = Label(origin_platform,
-               text = '歡迎來到EJ的圖書館！',
-               height = 2,
-               bg = '#99CCFF')
-lable_title.pack(side = TOP,
-            fill='x',
-            expand=True)
-
-lable_asking = Label(origin_platform,
-               text = '請選擇登入身分：',
-               height = 1,
-               bg = '#FFFFFF')
-lable_asking.pack(side = TOP,
-            fill='x',
-            expand=True)
-
-user_button = Button(origin_platform,
-                    text = '使用者',
-                    height = 5,
-                    bg = '#CCCCFF',
-                    fg = '#000000',
-                    activebackground = '#FFFFFF',
-                    activeforeground = '#000000',
-                    command = enter_user_platform)
-user_button.pack(side = 'top',
-                 fill='both',
-                 expand=True)
-
-lib_button = Button(origin_platform,
-                    text = '圖書館管理員',
-                    height = 5,
-                    bg = '#CCCCFF',
-                    fg = '#000000',
-                    activebackground = '#FFFFFF',
-                    activeforeground = '#000000')
-lib_button.pack(fill='both',
-                expand=True)
-
-sys_button = Button(origin_platform,
-                    text = '系統管理員',
-                    height = 1,
-                    bg = '#CCCCCC',
-                    fg = '#000000',
-                    activebackground = '#FFFFFF',
-                    activeforeground = '#000000')
-sys_button.pack(fill='x',
-                 expand=True)
-origin_platform.mainloop()        
-        
+Library = Platform()
+Library.start()           
 db.close()
