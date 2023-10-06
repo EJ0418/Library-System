@@ -6,7 +6,7 @@ class Start():
 
     def __init__(self):
         
-        self.origin_platform = Tk(className = 'EJs Library')  ###呼叫：call = Start(); call.origin_platform
+        self.origin_platform = Tk(className = 'EJs Library')
 
         lable_title = Label(self.origin_platform,
                        text = '歡迎來到EJ的圖書館！',
@@ -76,8 +76,6 @@ class Start():
 class Users():
 
     def __init__(self):
-        #call = Start()
-        #call.origin_platform.destroy()
         
         self.platform = Tk(className = '登入')
 
@@ -109,74 +107,72 @@ class Users():
                         fg = '#000000',
                         activebackground = '#FFFFFF',
                         activeforeground = '#000000',
-                        command = self.create_account_platform)
+                        command = self.signup_platform)
         signup_button.pack(side = LEFT)
 
         self.platform.mainloop() 
         
-    def create_account_platform(self):
+    def signup_platform(self):
         
-        self.platform.destroy()
-        
-        self.newuser_platform = Tk(className = '註冊帳號')
+        self.signup_platform = Tk(className = '註冊帳號')
 
-        add_username_label = Label(self.newuser_platform,
-                       text = '姓名：',
-                       height = 1)
+        add_username_label = Label(self.signup_platform,
+                                   text = '姓名：',
+                                   height = 1)
         add_username_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_username = Entry(self.newuser_platform,
-                      width = 20)
+                                fill='x',
+                                expand=True)
+        
+        self.add_username = Entry(self.signup_platform,
+                                  width = 20)
         self.add_username.pack(side = LEFT)
 
-        add_gender_label = Label(self.newuser_platform,
-                       text = '性別(F/M)：',
-                       height = 1)
+        add_gender_label = Label(self.signup_platform,
+                                 text = '性別(F/M)：',
+                                 height = 1)
         add_gender_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_gender = Entry(self.newuser_platform,
-                      width = 20)
+                              fill='x',
+                              expand=True)
+        
+        self.add_gender = Entry(self.signup_platform,
+                          width = 20)
         self.add_gender.pack(side = LEFT)
 
-        add_age_label = Label(self.newuser_platform,
-                       text = '年齡：',
-                       height = 1)
+        add_age_label = Label(self.signup_platform,
+                              text = '年齡：',
+                              height = 1)
         add_age_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_age = Entry(self.newuser_platform,
-                      width = 20)
+                           fill='x',
+                           expand=True)
+        
+        self.add_age = Entry(self.signup_platform,
+                             width = 20)
         self.add_age.pack(side = LEFT)
 
-        add_phone_label = Label(self.newuser_platform,
-                       text = '電話：',
-                       height = 1)
+        add_phone_label = Label(self.signup_platform,
+                               text = '電話：',
+                               height = 1)
         add_phone_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_phone = Entry(self.newuser_platform,
+                            fill='x',
+                            expand=True)
+        self.add_phone = Entry(self.signup_platform,
                       width = 20)
         self.add_phone.pack(side = LEFT)
 
-        signup_button = Button(self.newuser_platform,
-                          text = '註冊',
-                          width = 10,
-                          height = 1,
-                          bg = '#99CCFF',
-                          fg = '#000000',
-                          activebackground = '#FFFFFF',
-                          activeforeground = '#000000',
-                          command = self.create_user)
+        signup_button = Button(self.signup_platform,
+                              text = '註冊',
+                              width = 10,
+                              height = 1,
+                              bg = '#99CCFF',
+                              fg = '#000000',
+                              activebackground = '#FFFFFF',
+                              activeforeground = '#000000',
+                              command = self.create_user)
         signup_button.pack(side = LEFT)
 
-        self.newuser_platform.mainloop()
+        self.signup_platform.mainloop()
         
     def create_user(self):
-        
-        self.newuser_platform.destroy()
-        
         cursor = db.cursor()
         try:
             user_name = self.add_username.get()
@@ -189,17 +185,22 @@ class Users():
             user_data = (user_name, age, gender, phone)
             cursor.execute(add_user, user_data) 
             db.commit()
+            
+            cursor.execute(F'''CREATE TABLE {user_name}(
+                                ISBN CHAR(20) NOT NULL PRIMARY KEY,
+                                BOOK CHAR(20) NOT NULL
+                                )DEFAULT CHARSET = utf8''')
+            db.commit()
         except Exception as e:
             db.rollback()
             print("錯誤：", e)
         finally:
+            self.signup_platform.destroy()
             cursor.close()
             
 class Librarian():
     
     def __init__(self):
-        #call = Start()
-        #call.origin_platform.destroy()
 
         self.platform = Tk(className = '新增書籍')
 
@@ -309,8 +310,6 @@ class Librarian():
 class System():
     
     def __init__(self):
-        #call = Start()
-        #call.origin_platform.destroy()
 
         self.platform = Tk(className = '編輯資料庫')
 
@@ -385,7 +384,6 @@ class System():
             print("使用者資料庫建立錯誤：", e)
         finally:
             cursor.close()
- 
 
 
 search_book =  input('是否要查詢書籍? y/n')   
@@ -400,6 +398,7 @@ if search_book == 'y':
         print('不借閱書籍 - {}'.format(the_book_name))
 else:
     print('不查詢書籍')
+
 
 #origin_table = System()
 #origin_table.create_book_table()
