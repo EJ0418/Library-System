@@ -168,8 +168,6 @@ class Users():
                 self.name = result[0]
             else:
                 print("找不到使用者")
-                
-            ###########cursor.execute(f'''SELECT * FROM {name}''')
         except Exception as e:
             db.rollback()
             print("登入錯誤：", e)
@@ -181,7 +179,22 @@ class Users():
         self.platform.destroy()
         self.user_platform = Tk(className = '個人書庫')
         
-        search_label = Label(self.user_platform, text = '書名搜尋：', height = 1)
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"""SELECT BOOK FROM {self.name}""")
+            db.commit()
+            result = cursor.fetchall()
+            borrowed_books = ''
+            for book in result:
+                borrowed_books = borrowed_books + book[0] +'\n'
+        except Exception as e:
+            db.rollback()
+            print("搜尋錯誤：", e)
+        finally:
+            cursor.close()
+        
+        label_search = Label(self.user_platform, text = '書名搜尋：', height = 1)
+        label_borrowed = Label(self.user_platform, text = '已借書籍：\n{}'.format(borrowed_books))
         self.book_name = Entry(self.user_platform)
         search_button = Button(self.user_platform, 
                                 text = '搜尋',
@@ -193,7 +206,8 @@ class Users():
                                 activeforeground = '#000000',
                                 command = self.search_book)
         
-        search_label.grid(row = 0, column = 0)
+        label_search.grid(row = 0, column = 0)
+        label_borrowed.grid(row = 1, column = 1)
         self.book_name.grid(row = 0, column = 1)
         search_button.grid(row = 0, column = 2)
         
