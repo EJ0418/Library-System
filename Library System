@@ -8,21 +8,11 @@ class Start():
         
         self.origin_platform = Tk(className = 'EJs Library')
 
-        lable_title = Label(self.origin_platform,
-                       text = '歡迎來到EJ的圖書館！',
-                       height = 2,
-                       bg = '#99CCFF')
-        lable_title.pack(side = TOP,
-                    fill='x',
-                    expand=True)
+        lable_title = Label(self.origin_platform, text = '歡迎來到EJ的圖書館！', height = 2, bg = '#99CCFF')
+        lable_title.pack(side = TOP, fill='x', expand=True)
 
-        lable_asking = Label(self.origin_platform,
-                       text = '請選擇登入身分：',
-                       height = 1,
-                       bg = '#FFFFFF')
-        lable_asking.pack(side = TOP,
-                    fill='x',
-                    expand=True)
+        lable_asking = Label(self.origin_platform, text = '請選擇登入身分：', height = 1, bg = '#FFFFFF')
+        lable_asking.pack(side = TOP, fill='x', expand=True)
 
         user_button = Button(self.origin_platform,
                             text = '使用者',
@@ -111,30 +101,21 @@ class Users():
     def signup_platform(self):
         
         self.signup_platform = Tk(className = '註冊帳號')
-
-        add_username_label = Label(self.signup_platform, text = '姓名：', height = 1)
-        add_username_label.pack(side = LEFT, fill='x', expand=True)
+        
+        label_text = ['姓名：', '性別(F/M)：', '年齡：', '電話：']
+        for i, text in enumerate(label_text):
+            label = Label(self.signup_platform, text = text, height = 1)
+            label.grid(row = i, column = 0)
+            
         
         self.add_username = Entry(self.signup_platform, width = 20)
-        self.add_username.pack(side = LEFT)
-
-        add_gender_label = Label(self.signup_platform, text = '性別(F/M)：', height = 1)
-        add_gender_label.pack(side = LEFT, fill='x', expand=True)
-        
-        self.add_gender = Entry(self.signup_platform, width = 20)
-        self.add_gender.pack(side = LEFT)
-
-        add_age_label = Label(self.signup_platform, text = '年齡：', height = 1)
-        add_age_label.pack(side = LEFT, fill='x', expand=True)
-        
-        self.add_age = Entry(self.signup_platform, width = 20)
-        self.add_age.pack(side = LEFT)
-
-        add_phone_label = Label(self.signup_platform, text = '電話：', height = 1)
-        add_phone_label.pack(side = LEFT, fill='x', expand=True)
-        
+        self.add_gender =  Entry(self.signup_platform, width = 20)
+        self.add_age =  Entry(self.signup_platform, width = 20)
         self.add_phone = Entry(self.signup_platform, width = 20)
-        self.add_phone.pack(side = LEFT)
+        entries = [self.add_username, self.add_gender, self.add_age, self.add_phone]
+        for i, entry in enumerate(entries):
+            entry.grid(row = i, column = 1)
+            
 
         signup_button = Button(self.signup_platform,
                               text = '註冊',
@@ -145,7 +126,7 @@ class Users():
                               activebackground = '#FFFFFF',
                               activeforeground = '#000000',
                               command = self.create_user)
-        signup_button.pack(side = LEFT)
+        signup_button.grid(row = 3, column = 2)
 
         self.signup_platform.mainloop()
         
@@ -184,7 +165,7 @@ class Users():
             db.commit()
             result = cursor.fetchone()
             if result:
-                name = result[0]
+                self.name = result[0]
             else:
                 print("找不到使用者")
                 
@@ -201,11 +182,7 @@ class Users():
         self.user_platform = Tk(className = '個人書庫')
         
         search_label = Label(self.user_platform, text = '書名搜尋：', height = 1)
-        search_label.grid(row = 0, column = 0)
-        
         self.book_name = Entry(self.user_platform)
-        self.book_name.grid(row = 0, column = 1)
-        
         search_button = Button(self.user_platform, 
                                 text = '搜尋',
                                 width = 10,
@@ -215,6 +192,9 @@ class Users():
                                 activebackground = '#FFFFFF',
                                 activeforeground = '#000000',
                                 command = self.search_book)
+        
+        search_label.grid(row = 0, column = 0)
+        self.book_name.grid(row = 0, column = 1)
         search_button.grid(row = 0, column = 2)
         
         self.user_platform.mainloop()
@@ -228,11 +208,9 @@ class Users():
             search_result = cursor.fetchone()
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("搜尋錯誤：", e)
         finally:
             cursor.close()
-        
-        lable_content = ('ISBN：{}', '書名：{}', '作者：{}', '譯者：{}', '出版社：{}')
         
         label_texts = [
             'ISBN：{}'.format(search_result[0]),
@@ -247,51 +225,61 @@ class Users():
             label.grid(row=i + 1, column=1)    
         
         self.book_name.delete(0, END)
+        
+        button_borrow = Button(self.user_platform, 
+                                text = '借書',
+                                width = 10,
+                                height = 1,
+                                bg = '#99CCFF',
+                                fg = '#000000',
+                                activebackground = '#FFFFFF',
+                                activeforeground = '#000000')
+                                ###command = self.borrow_book)
+        button_return = Button(self.user_platform, 
+                                text = '還書',
+                                width = 10,
+                                height = 1,
+                                bg = '#99CCFF',
+                                fg = '#000000',
+                                activebackground = '#FFFFFF',
+                                activeforeground = '#000000')
+                                ###command = self.return_book)
+            
+'''    def borrow_book(self):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"""UPDATE {self.name} = '{self.book}'""")
+            db.commit()
+            search_result = cursor.fetchone()
+        except Exception as e:
+            db.rollback()
+            print("搜尋錯誤：", e)
+        finally:
+            cursor.close()'''
 
         
             
 class Librarian():
     
     def __init__(self):
-
+        
         self.platform = Tk(className = '新增書籍')
-
-        add_isbn_label = Label(self.platform, text = 'ISBN編碼：', height = 1)
-        add_isbn_label.pack(side = LEFT, fill='x', expand=True)
         
+        label_text = ['ISBN編碼：', '書籍名稱：', '作者：', '譯者：', '出版社：', '書本數量：']
+        for i, text in enumerate(label_text):
+            label = Label(self.platform, text = text, height = 1)
+            label.grid(row = i, column = 0)
+
         self.add_isbn = Entry(self.platform, width = 20)
-        self.add_isbn.pack(side = LEFT)
-
-        add_bookname_label = Label(self.platform, text = '書籍名稱：', height = 1)
-        add_bookname_label.pack(side = LEFT, fill='x', expand=True)
-        
         self.add_bookname = Entry(self.platform, width = 20)
-        self.add_bookname.pack(side = LEFT)
-
-        add_author_label = Label(self.platform, text = '作者：', height = 1)
-        add_author_label.pack(side = LEFT, fill='x', expand=True)
-        
         self.add_author = Entry(self.platform, width = 20)
-        self.add_author.pack(side = LEFT)
-
-        add_translator_label = Label(self.platform, text = '譯者：', height = 1)
-        add_translator_label.pack(side = LEFT, fill='x', expand=True)
-        
         self.add_translator = Entry(self.platform, width = 20)
-        self.add_translator.pack(side = LEFT)
-
-        add_publisher_label = Label(self.platform, text = '出版社：', height = 1)
-        add_publisher_label.pack(side = LEFT, fill='x', expand=True)
-        
         self.add_publisher = Entry(self.platform, width = 20)
-        self.add_publisher.pack(side = LEFT)
-
-        add_nums_label = Label(self.platform, text = '書本數量：', height = 1)
-        add_nums_label.pack(side = LEFT, fill='x', expand=True)
-        
         self.add_nums = Entry(self.platform, width = 20)
-        self.add_nums.pack(side = LEFT)
-
+        entries = [self.add_isbn, self.add_bookname, self.add_author, self.add_translator, self.add_publisher, self.add_nums]
+        for i, entry in enumerate(entries):
+            entry.grid(row = i, column = 1)
+        
         adding_button = Button(self.platform,
                           text = '新增',
                           width = 10,
@@ -301,7 +289,7 @@ class Librarian():
                           activebackground = '#FFFFFF',
                           activeforeground = '#000000',
                           command = self.add_books)
-        adding_button.pack(side = LEFT)
+        adding_button.grid(row = 5, column = 2)
 
         self.platform.mainloop()    
           
@@ -327,13 +315,9 @@ class Librarian():
             print("錯誤：", e)
         finally:
             cursor.close()
-            self.add_isbn.delete(0, END)
-            self.add_bookname.delete(0, END)
-            self.add_author.delete(0, END)
-            self.add_translator.delete(0, END)
-            self.add_publisher.delete(0, END)
-            self.add_nums.delete(0, END)
-
+            
+            for entry in entries:
+                entry.delete(0, END)
             
 class System():
     
