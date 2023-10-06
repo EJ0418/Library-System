@@ -205,7 +205,7 @@ class Users():
         try:
             cursor.execute(f"""SELECT * FROM BOOK WHERE BOOK_NAME = '{self.book}'""")
             db.commit()
-            search_result = cursor.fetchone()
+            self.search_result = cursor.fetchone()
         except Exception as e:
             db.rollback()
             print("搜尋錯誤：", e)
@@ -213,11 +213,11 @@ class Users():
             cursor.close()
         
         label_texts = [
-            'ISBN：{}'.format(search_result[0]),
-            '書名：{}'.format(search_result[1]),
-            '作者：{}'.format(search_result[2]),
-            '譯者：{}'.format(search_result[3]),
-            '出版社：{}'.format(search_result[4])
+            'ISBN：{}'.format(self.search_result[0]),
+            '書名：{}'.format(self.search_result[1]),
+            '作者：{}'.format(self.search_result[2]),
+            '譯者：{}'.format(self.search_result[3]),
+            '出版社：{}'.format(self.search_result[4])
                 ]
 
         for i, text in enumerate(label_texts):
@@ -233,8 +233,8 @@ class Users():
                                 bg = '#99CCFF',
                                 fg = '#000000',
                                 activebackground = '#FFFFFF',
-                                activeforeground = '#000000')
-                                ###command = self.borrow_book)
+                                activeforeground = '#000000',
+                                command = self.borrow_book)
         button_return = Button(self.user_platform, 
                                 text = '還書',
                                 width = 10,
@@ -242,20 +242,49 @@ class Users():
                                 bg = '#99CCFF',
                                 fg = '#000000',
                                 activebackground = '#FFFFFF',
-                                activeforeground = '#000000')
-                                ###command = self.return_book)
-            
-'''    def borrow_book(self):
+                                activeforeground = '#000000',
+                                command = self.return_book)
+        
         cursor = db.cursor()
         try:
-            cursor.execute(f"""UPDATE {self.name} = '{self.book}'""")
+            cursor.execute(f"""SELECT * FROM {self.name} WHERE ISBN = {self.search_result[0]}""")
             db.commit()
-            search_result = cursor.fetchone()
+            result = cursor.fetchall()
+            if result:
+                button_return.grid(row = 6, column = 1)
+            else:
+                button_borrow.grid(row = 6, column = 1)
         except Exception as e:
             db.rollback()
-            print("搜尋錯誤：", e)
+            print("錯誤：", e)
         finally:
-            cursor.close()'''
+            cursor.close()
+
+            
+    def borrow_book(self):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"""INSERT INTO {self.name} (ISBN, BOOK)
+                                        VALUES ('{self.search_result[0]}','{self.book}')""")
+            db.commit()
+            
+        except Exception as e:
+            db.rollback()
+            print("借書錯誤：", e)
+        finally:
+            cursor.close()
+            
+    def return_book(self):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"""DELETE FROM {self.name} WHERE ISBN = {self.search_result[0]}""")
+            db.commit()
+            
+        except Exception as e:
+            db.rollback()
+            print("還書錯誤：", e)
+        finally:
+            cursor.close()
 
         
             
