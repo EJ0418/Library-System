@@ -2,6 +2,13 @@ import MySQLdb
 from tkinter import *
 db = MySQLdb.connect("localhost", "EJ", "********", "Library")
 
+def center_window(window):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width - 400) // 2
+    y = (screen_height - 300) // 2
+    window.geometry(f"400x300+{x}+{y}")
+
 class Start():
 
     def __init__(self):
@@ -47,7 +54,8 @@ class Start():
                            command = self.system)
         sys_button.pack(fill='x',
                          expand=True)
-
+        
+        center_window(self.origin_platform)
         self.origin_platform.mainloop()
     
     def users(self):
@@ -95,28 +103,30 @@ class Users():
                         activeforeground = '#000000',
                         command = self.signup_platform)
         signup_button.pack(side = LEFT)
-
+        
+        #center_window(self.platform)
         self.platform.mainloop() 
         
     def signup_platform(self):
         
         self.signup_platform = Tk(className = '註冊帳號')
         
+        title = Label(self.signup_platform, text = '請輸入資料', height = 2)
+        title.grid(row = 0, column = 1)
+        
         label_text = ['姓名：', '性別(F/M)：', '年齡：', '電話：']
         for i, text in enumerate(label_text):
-            label = Label(self.signup_platform, text = text, height = 1)
-            label.grid(row = i, column = 0)
-            
+            label = Label(self.signup_platform, text = text, width = 15, height = 3)
+            label.grid(row = i+1, column = 0)
         
-        self.add_username = Entry(self.signup_platform, width = 20)
-        self.add_gender =  Entry(self.signup_platform, width = 20)
-        self.add_age =  Entry(self.signup_platform, width = 20)
-        self.add_phone = Entry(self.signup_platform, width = 20)
+        self.add_username = Entry(self.signup_platform, width = 30)
+        self.add_gender =  Entry(self.signup_platform, width = 30)
+        self.add_age =  Entry(self.signup_platform, width = 30)
+        self.add_phone = Entry(self.signup_platform, width = 30)
         entries = [self.add_username, self.add_gender, self.add_age, self.add_phone]
         for i, entry in enumerate(entries):
-            entry.grid(row = i, column = 1)
+            entry.grid(row = i+1, column = 1)
             
-
         signup_button = Button(self.signup_platform,
                               text = '註冊',
                               width = 10,
@@ -126,8 +136,9 @@ class Users():
                               activebackground = '#FFFFFF',
                               activeforeground = '#000000',
                               command = self.create_user)
-        signup_button.grid(row = 3, column = 2)
-
+        signup_button.grid(row = 6, column = 1)
+        
+        center_window(self.signup_platform)
         self.signup_platform.mainloop()
         
     def create_user(self):
@@ -159,8 +170,7 @@ class Users():
     def login(self):
         cursor = db.cursor()
         try:
-            phone = self.phonenum.get()
-            
+            phone = self.phonenum.get()   
             cursor.execute(f'''SELECT NAME FROM USER WHERE PHONE = '{phone}' ''')
             db.commit()
             result = cursor.fetchone()
@@ -211,6 +221,7 @@ class Users():
         self.book_name.grid(row = 0, column = 1)
         search_button.grid(row = 0, column = 2)
         
+        #center_window(self.user_platform)
         self.user_platform.mainloop()
         
     def search_book(self):
@@ -225,7 +236,7 @@ class Users():
             print("搜尋錯誤：", e)
         finally:
             cursor.close()
-        
+
         label_texts = [
             'ISBN：{}'.format(self.search_result[0]),
             '書名：{}'.format(self.search_result[1]),
@@ -233,10 +244,9 @@ class Users():
             '譯者：{}'.format(self.search_result[3]),
             '出版社：{}'.format(self.search_result[4])
                 ]
-
         for i, text in enumerate(label_texts):
             label = Label(self.user_platform, text=text, height=1)
-            label.grid(row=i + 1, column=1)    
+            label.grid(row=i + 4, column=1)    
         
         self.book_name.delete(0, END)
         
@@ -258,22 +268,21 @@ class Users():
                                 activebackground = '#FFFFFF',
                                 activeforeground = '#000000',
                                 command = self.return_book)
-        
+
         cursor = db.cursor()
         try:
             cursor.execute(f"""SELECT * FROM {self.name} WHERE ISBN = {self.search_result[0]}""")
             db.commit()
             result = cursor.fetchall()
             if result:
-                button_return.grid(row = 6, column = 1)
+                button_return.grid(row = 9, column = 1)
             else:
-                button_borrow.grid(row = 6, column = 1)
+                button_borrow.grid(row = 9, column = 1)
         except Exception as e:
             db.rollback()
             print("錯誤：", e)
         finally:
             cursor.close()
-
             
     def borrow_book(self):
         cursor = db.cursor()
@@ -281,7 +290,6 @@ class Users():
             cursor.execute(f"""INSERT INTO {self.name} (ISBN, BOOK)
                                         VALUES ('{self.search_result[0]}','{self.book}')""")
             db.commit()
-            
         except Exception as e:
             db.rollback()
             print("借書錯誤：", e)
@@ -293,35 +301,35 @@ class Users():
         try:
             cursor.execute(f"""DELETE FROM {self.name} WHERE ISBN = {self.search_result[0]}""")
             db.commit()
-            
         except Exception as e:
             db.rollback()
             print("還書錯誤：", e)
         finally:
             cursor.close()
 
-        
-            
 class Librarian():
     
     def __init__(self):
         
         self.platform = Tk(className = '新增書籍')
         
+        title = Label(self.platform, text = '請輸入書本資料', height = 2)
+        title.grid(row = 0, column = 1)
+        
         label_text = ['ISBN編碼：', '書籍名稱：', '作者：', '譯者：', '出版社：', '書本數量：']
         for i, text in enumerate(label_text):
-            label = Label(self.platform, text = text, height = 1)
-            label.grid(row = i, column = 0)
+            label = Label(self.platform, text = text, width = 15, height = 2)
+            label.grid(row = i+1, column = 0)
 
-        self.add_isbn = Entry(self.platform, width = 20)
-        self.add_bookname = Entry(self.platform, width = 20)
-        self.add_author = Entry(self.platform, width = 20)
-        self.add_translator = Entry(self.platform, width = 20)
-        self.add_publisher = Entry(self.platform, width = 20)
-        self.add_nums = Entry(self.platform, width = 20)
+        self.add_isbn = Entry(self.platform, width = 30)
+        self.add_bookname = Entry(self.platform, width = 30)
+        self.add_author = Entry(self.platform, width = 30)
+        self.add_translator = Entry(self.platform, width = 30)
+        self.add_publisher = Entry(self.platform, width = 30)
+        self.add_nums = Entry(self.platform, width = 30)
         entries = [self.add_isbn, self.add_bookname, self.add_author, self.add_translator, self.add_publisher, self.add_nums]
         for i, entry in enumerate(entries):
-            entry.grid(row = i, column = 1)
+            entry.grid(row = i+1, column = 1)
         
         adding_button = Button(self.platform,
                           text = '新增',
@@ -332,8 +340,9 @@ class Librarian():
                           activebackground = '#FFFFFF',
                           activeforeground = '#000000',
                           command = self.add_books)
-        adding_button.grid(row = 5, column = 2)
+        adding_button.grid(row = 7, column = 1)
 
+        center_window(self.platform)
         self.platform.mainloop()    
           
 
@@ -389,6 +398,7 @@ class System():
                           command = self.edit)
         order_button.pack(side = LEFT)
 
+        center_window(self.platform)
         self.platform.mainloop()
 
     def edit(self):
@@ -440,7 +450,13 @@ class System():
         finally:
             cursor.close()
 
-
+def center_window(window):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width - 400) // 2
+    y = (screen_height - 300) // 2
+    window.geometry(f"400x300+{x}+{y}")
+    
 #origin_table = System()
 #origin_table.create_book_table()
 #origin_table.create_user_table()  
