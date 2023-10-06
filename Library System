@@ -1,136 +1,12 @@
 import MySQLdb
 from tkinter import *
-db = MySQLdb.connect("localhost", "EJ", "1212000", "Library")
-        
-class Tables():
-    def __init__(self):
-        self.table = '書籍&使用者資料庫'
+db = MySQLdb.connect("localhost", "EJ", "********", "Library")
 
-    def create_book_table(self):
-        cursor = db.cursor()
-        try:
-            cursor.execute("""CREATE TABLE BOOK (
-                    ISBN CHAR(20) NOT NULL,
-                    BOOK_NAME CHAR(20) NOT NULL,
-                    AUTHOR CHAR(20),
-                    TRANSLATOR CHAR(20),
-                    PUBLISHER CHAR(20),
-                    NUMS INT(11) NOT NULL,
-                    PRIMARY KEY (ISBN)
-                    )DEFAULT CHARSET = utf8""")
-            db.commit()
-        except Exception as e:
-            db.rollback()
-            print("書籍資料庫建立錯誤：", e)
-        finally:
-            cursor.close()
-            
-    def create_user_table(self):
-        cursor = db.cursor()
-        try:
-            cursor.execute("""CREATE TABLE USER (
-                    USER_ID INT(11) NOT NULL AUTO_INCREMENT,
-                    NAME CHAR(20) NOT NULL,
-                    GENDER CHAR(20),
-                    AGE CHAR(20),
-                    PHONE CHAR(20),
-                    PRIMARY KEY(USER_ID)
-                    )DEFAULT CHARSET = utf8""")
-            db.commit()
-        except Exception as e:
-            db.rollback()
-            print("使用者資料庫建立錯誤：", e)
-        finally:
-            cursor.close()
-            
-    def edit_tables(self, input_order):
-        self.order = input_order
-        cursor = db.cursor()
-        try:
-            cursor.execute(f"""{self.order}""")
-            db.commit()
-        except Exception as e:
-            db.rollback()
-            print("資料庫編輯錯誤：", e)
-        finally:
-            cursor.close()
-
-    
-class Users():
-    def __init__(self, user_name):
-        self.name = user_name
-        self.book_shell = []
-        
-    def search_id(self, book_name):
-        cursor = db.cursor()
-        self.book = book_name
-        try:
-            cursor.execute(f"""SELECT ID 
-                                    FROM BOOK 
-                                    WHERE BOOK_NAME = '{self.book}'""")
-            db.commit()
-            result = cursor.fetchone()
-            if result:
-                self.book_id = result[0]
-        except Exception as e:
-            db.rollback()
-            print("錯誤：", e)
-        finally:
-            cursor.close()
-        
-    def borrow_books(self):
-        cursor = db.cursor()
-        try:
-            cursor.execute(f"""UPDATE BOOK 
-                                    SET NUMS = NUMS - 1
-                                    WHERE ID = '{self.book_id}'""")
-            db.commit()
-            self.book_shell.append(self.book)
-            print('書本：{}，借閱成功'.format(self.book))
-            print('已借閱：{}'.format(self.book_shell))
-        except Exception as e:
-            db.rollback()
-            print("借書錯誤：", e)
-        finally:
-            cursor.close()
-            
-    def return_books(self):
-        cursor = db.cursor()
-        try:
-            cursor.execute(f"""UPDATE BOOK
-                                SET NUMS = NUMS +1
-                                WHERE ID = '{self.book_id}'""")
-            db.commit()
-            self.book_shell.pop(self.book)
-            print('書本：{}，歸還成功'.format(self.book))
-            print('已借閱：{}'.format(self.book_shell))
-        except Exception as e:
-            db.rollback()
-            print("還書錯誤：", e)
-        finally:
-            cursor.close()
-            
-class Sys_ctrl():
-    
-    def __init__(self):
-        self.sys = ''
-        
-    def origin_tables(self):
-        origin_table = Tables()
-        origin_table.create_book_table()
-        origin_table.create_user_table()
-        
-    
-        
-            
-##使用者登入系統頁面
-class Platform():
+class Start():
 
     def __init__(self):
-        self.library = 'EJs Library'
         
-    def start(self):
-        self.origin_platform = Tk(className = 'EJs Library')
+        self.origin_platform = Tk(className = 'EJs Library')  ###呼叫：call = Start(); call.origin_platform
 
         lable_title = Label(self.origin_platform,
                        text = '歡迎來到EJ的圖書館！',
@@ -155,7 +31,7 @@ class Platform():
                             fg = '#000000',
                             activebackground = '#FFFFFF',
                             activeforeground = '#000000',
-                            command = self.enter_user_platform)
+                            command = self.users)
         user_button.pack(side = 'top',
                          fill='both',
                          expand=True)
@@ -167,7 +43,7 @@ class Platform():
                             fg = '#000000',
                             activebackground = '#FFFFFF',
                             activeforeground = '#000000',
-                            command = self.librarian_platform)
+                            command = self.librarian)
         lib_button.pack(fill='both',
                         expand=True)
 
@@ -178,30 +54,45 @@ class Platform():
                             fg = '#000000',
                             activebackground = '#FFFFFF',
                             activeforeground = '#000000',
-                           command = self.sys_admin)
+                           command = self.system)
         sys_button.pack(fill='x',
                          expand=True)
 
-        self.origin_platform.mainloop()     
-
-    def enter_user_platform(self):
-        
+        self.origin_platform.mainloop()
+    
+    def users(self):
         self.origin_platform.destroy()
+        call = Users()
         
-        self.user_platform = Tk(className = '登入')
+    def librarian(self):
+        self.origin_platform.destroy()
+        call = Librarian()
+        
+    def system(self):
+        self.origin_platform.destroy()
+        call = System()
 
-        login_label = Label(self.user_platform,
+        
+class Users():
+
+    def __init__(self):
+        #call = Start()
+        #call.origin_platform.destroy()
+        
+        self.platform = Tk(className = '登入')
+
+        login_label = Label(self.platform,
                        text = '電話號碼登入：',
                        height = 1)
         login_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
 
-        login = Entry(self.user_platform,
+        login = Entry(self.platform,
                       width = 20)
         login.pack(side = LEFT)
 
-        login_button = Button(self.user_platform,
+        login_button = Button(self.platform,
                              text = '登入',
                              width = 10,
                              height = 1,
@@ -211,7 +102,7 @@ class Platform():
                              activeforeground = '#000000')
         login_button.pack(side = LEFT)
 
-        signup_button = Button(self.user_platform,
+        signup_button = Button(self.platform,
                         text = '註冊會員',
                         width = 10,
                         height = 1,
@@ -221,11 +112,11 @@ class Platform():
                         command = self.create_account_platform)
         signup_button.pack(side = LEFT)
 
-        self.user_platform.mainloop() 
- 
+        self.platform.mainloop() 
+        
     def create_account_platform(self):
         
-        self.user_platform.destroy()
+        self.platform.destroy()
         
         self.newuser_platform = Tk(className = '註冊帳號')
 
@@ -304,75 +195,75 @@ class Platform():
         finally:
             cursor.close()
             
- 
-    ##圖書館管理員系統頁面
-    def librarian_platform(self):
+class Librarian():
+    
+    def __init__(self):
+        #call = Start()
+        #call.origin_platform.destroy()
 
-        self.origin_platform.destroy()
+        self.platform = Tk(className = '新增書籍')
 
-        self.librarian_platform = Tk(className = '新增書籍')
-
-        add_isbn_label = Label(self.librarian_platform,
+        add_isbn_label = Label(self.platform,
                        text = 'ISBN編碼：',
                        height = 1)
         add_isbn_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
-        self.add_isbn = Entry(self.librarian_platform,
+        self.add_isbn = Entry(self.platform,
                       width = 20)
         self.add_isbn.pack(side = LEFT)
 
-        add_bookname_label = Label(self.librarian_platform,
+        add_bookname_label = Label(self.platform,
                        text = '書籍名稱：',
                        height = 1)
         add_bookname_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
-        self.add_bookname = Entry(self.librarian_platform,
+        self.add_bookname = Entry(self.platform,
                       width = 20)
         self.add_bookname.pack(side = LEFT)
 
-        add_author_label = Label(self.librarian_platform,
+        add_author_label = Label(self.platform,
                        text = '作者：',
                        height = 1)
         add_author_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
-        self.add_author = Entry(self.librarian_platform,
+        self.add_author = Entry(self.platform,
                       width = 20)
         self.add_author.pack(side = LEFT)
 
-        add_translator_label = Label(self.librarian_platform,
+        add_translator_label = Label(self.platform,
                        text = '譯者：',
                        height = 1)
         add_translator_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
-        self.add_translator = Entry(self.librarian_platform,
+        self.add_translator = Entry(self.platform,
                       width = 20)
         self.add_translator.pack(side = LEFT)
 
-        add_publisher_label = Label(self.librarian_platform,
+        add_publisher_label = Label(self.platform,
                        text = '出版社：',
                        height = 1)
         add_publisher_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
-        self.add_publisher = Entry(self.librarian_platform,
+        self.add_publisher = Entry(self.platform,
                       width = 20)
         self.add_publisher.pack(side = LEFT)
 
-        add_nums_label = Label(self.librarian_platform,
+        add_nums_label = Label(self.platform,
                        text = '書本數量：',
                        height = 1)
         add_nums_label.pack(side = LEFT,
                     fill='x',
                     expand=True)
-        self.add_nums = Entry(self.librarian_platform,
+        self.add_nums = Entry(self.platform,
                       width = 20)
         self.add_nums.pack(side = LEFT)
 
-        adding_button = Button(self.librarian_platform,
+        adding_button = Button(self.platform,
                           text = '新增',
                           width = 10,
                           height = 1,
@@ -383,9 +274,8 @@ class Platform():
                           command = self.add_books)
         adding_button.pack(side = LEFT)
 
-        self.librarian_platform.mainloop()    
+        self.platform.mainloop()    
           
-
 
     def add_books(self):
         cursor = db.cursor()
@@ -414,24 +304,27 @@ class Platform():
             self.add_translator.delete(0, END)
             self.add_publisher.delete(0, END)
             self.add_nums.delete(0, END)
+
+            
+class System():
     
-    def sys_admin(self):
+    def __init__(self):
+        #call = Start()
+        #call.origin_platform.destroy()
 
-        self.origin_platform.destroy()
+        self.platform = Tk(className = '編輯資料庫')
 
-        self.sys_admin_platform = Tk(className = '編輯資料庫')
-
-        order_label = Label(self.sys_admin_platform,
+        order_label = Label(self.platform,
                            text = '指令：',
                            height = 1)
         order_label.pack(side = LEFT,
                         fill = 'x',
                         expand = True)
 
-        self.add_orders = Text(self.sys_admin_platform)
+        self.add_orders = Text(self.platform)
         self.add_orders.pack()
 
-        order_button = Button(self.sys_admin_platform,
+        order_button = Button(self.platform,
                           text = '輸出',
                           width = 10,
                           height = 1,
@@ -442,22 +335,58 @@ class Platform():
                           command = self.edit)
         order_button.pack(side = LEFT)
 
-        self.sys_admin_platform.mainloop()
-        
-    def edit(self):
-        new_order = Tables()
-        order = self.add_orders.get("1.0", "end-1c")
-        new_order.edit_tables(order)
-        
-        
+        self.platform.mainloop()
 
-    
-'''帳號使用：查詢、借書、還書'''    
-##創建帳號
-amy_account = Users('Amy')
-tom_account = Users('Tom')
-evelyn_account = Users('Evelyn')
-jim_account = Users('Jim')
+    def edit(self):
+        order = self.add_orders.get("1.0", "end-1c")
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"""{order}""")
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print("資料庫編輯錯誤：", e)
+        finally:
+            cursor.close()
+        
+    def create_book_table(self):
+        cursor = db.cursor()
+        try:
+            cursor.execute("""CREATE TABLE BOOK (
+                    ISBN CHAR(20) NOT NULL,
+                    BOOK_NAME CHAR(20) NOT NULL,
+                    AUTHOR CHAR(20),
+                    TRANSLATOR CHAR(20),
+                    PUBLISHER CHAR(20),
+                    NUMS INT(11) NOT NULL,
+                    PRIMARY KEY (ISBN)
+                    )DEFAULT CHARSET = utf8""")
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print("書籍資料庫建立錯誤：", e)
+        finally:
+            cursor.close()
+            
+    def create_user_table(self):
+        cursor = db.cursor()
+        try:
+            cursor.execute("""CREATE TABLE USER (
+                    USER_ID INT(11) NOT NULL AUTO_INCREMENT,
+                    NAME CHAR(20) NOT NULL,
+                    GENDER CHAR(20),
+                    AGE CHAR(20),
+                    PHONE CHAR(20),
+                    PRIMARY KEY(USER_ID)
+                    )DEFAULT CHARSET = utf8""")
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print("使用者資料庫建立錯誤：", e)
+        finally:
+            cursor.close()
+ 
+
 
 search_book =  input('是否要查詢書籍? y/n')   
 if search_book == 'y':
@@ -472,7 +401,10 @@ if search_book == 'y':
 else:
     print('不查詢書籍')
 
+#origin_table = System()
+#origin_table.create_book_table()
+#origin_table.create_user_table()  
 
-Library = Platform()
-Library.start()           
+Library = Start()
+        
 db.close()
