@@ -79,16 +79,11 @@ class Users():
         
         self.platform = Tk(className = '登入')
 
-        login_label = Label(self.platform,
-                       text = '電話號碼登入：',
-                       height = 1)
-        login_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
+        login_label = Label(self.platform, text = '電話號碼登入：', height = 1)
+        login_label.pack(side = LEFT, fill='x', expand=True)
 
-        login = Entry(self.platform,
-                      width = 20)
-        login.pack(side = LEFT)
+        self.phonenum = Entry(self.platform, width = 20)
+        self.phonenum.pack(side = LEFT)
 
         login_button = Button(self.platform,
                              text = '登入',
@@ -97,7 +92,8 @@ class Users():
                              bg = '#99CCFF',
                              fg = '#000000',
                              activebackground = '#FFFFFF',
-                             activeforeground = '#000000')
+                             activeforeground = '#000000',
+                             command = self.login)
         login_button.pack(side = LEFT)
 
         signup_button = Button(self.platform,
@@ -116,47 +112,28 @@ class Users():
         
         self.signup_platform = Tk(className = '註冊帳號')
 
-        add_username_label = Label(self.signup_platform,
-                                   text = '姓名：',
-                                   height = 1)
-        add_username_label.pack(side = LEFT,
-                                fill='x',
-                                expand=True)
+        add_username_label = Label(self.signup_platform, text = '姓名：', height = 1)
+        add_username_label.pack(side = LEFT, fill='x', expand=True)
         
-        self.add_username = Entry(self.signup_platform,
-                                  width = 20)
+        self.add_username = Entry(self.signup_platform, width = 20)
         self.add_username.pack(side = LEFT)
 
-        add_gender_label = Label(self.signup_platform,
-                                 text = '性別(F/M)：',
-                                 height = 1)
-        add_gender_label.pack(side = LEFT,
-                              fill='x',
-                              expand=True)
+        add_gender_label = Label(self.signup_platform, text = '性別(F/M)：', height = 1)
+        add_gender_label.pack(side = LEFT, fill='x', expand=True)
         
-        self.add_gender = Entry(self.signup_platform,
-                          width = 20)
+        self.add_gender = Entry(self.signup_platform, width = 20)
         self.add_gender.pack(side = LEFT)
 
-        add_age_label = Label(self.signup_platform,
-                              text = '年齡：',
-                              height = 1)
-        add_age_label.pack(side = LEFT,
-                           fill='x',
-                           expand=True)
+        add_age_label = Label(self.signup_platform, text = '年齡：', height = 1)
+        add_age_label.pack(side = LEFT, fill='x', expand=True)
         
-        self.add_age = Entry(self.signup_platform,
-                             width = 20)
+        self.add_age = Entry(self.signup_platform, width = 20)
         self.add_age.pack(side = LEFT)
 
-        add_phone_label = Label(self.signup_platform,
-                               text = '電話：',
-                               height = 1)
-        add_phone_label.pack(side = LEFT,
-                            fill='x',
-                            expand=True)
-        self.add_phone = Entry(self.signup_platform,
-                      width = 20)
+        add_phone_label = Label(self.signup_platform, text = '電話：', height = 1)
+        add_phone_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_phone = Entry(self.signup_platform, width = 20)
         self.add_phone.pack(side = LEFT)
 
         signup_button = Button(self.signup_platform,
@@ -186,17 +163,92 @@ class Users():
             cursor.execute(add_user, user_data) 
             db.commit()
             
-            cursor.execute(F'''CREATE TABLE {user_name}(
+            cursor.execute(f'''CREATE TABLE {user_name}(
                                 ISBN CHAR(20) NOT NULL PRIMARY KEY,
                                 BOOK CHAR(20) NOT NULL
                                 )DEFAULT CHARSET = utf8''')
             db.commit()
         except Exception as e:
             db.rollback()
-            print("錯誤：", e)
+            print("註冊錯誤：", e)
         finally:
             self.signup_platform.destroy()
             cursor.close()
+            
+    def login(self):
+        cursor = db.cursor()
+        try:
+            phone = self.phonenum.get()
+            
+            cursor.execute(f'''SELECT NAME FROM USER WHERE PHONE = '{phone}' ''')
+            db.commit()
+            result = cursor.fetchone()
+            if result:
+                name = result[0]
+            else:
+                print("找不到使用者")
+                
+            ###########cursor.execute(f'''SELECT * FROM {name}''')
+        except Exception as e:
+            db.rollback()
+            print("登入錯誤：", e)
+        finally:
+            cursor.close()
+            self.user_platform()
+            
+    def user_platform(self):
+        self.platform.destroy()
+        self.user_platform = Tk(className = '個人書庫')
+        
+        search_label = Label(self.user_platform, text = '書名搜尋：', height = 1)
+        search_label.grid(row = 0, column = 0)
+        
+        self.book_name = Entry(self.user_platform)
+        self.book_name.grid(row = 0, column = 1)
+        
+        search_button = Button(self.user_platform, 
+                                text = '搜尋',
+                                width = 10,
+                                height = 1,
+                                bg = '#99CCFF',
+                                fg = '#000000',
+                                activebackground = '#FFFFFF',
+                                activeforeground = '#000000',
+                                command = self.search_book)
+        search_button.grid(row = 0, column = 2)
+        
+        self.user_platform.mainloop()
+        
+    def search_book(self):
+        self.book = self.book_name.get()
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"""SELECT * FROM BOOK WHERE BOOK_NAME = '{self.book}'""")
+            db.commit()
+            search_result = cursor.fetchone()
+        except Exception as e:
+            db.rollback()
+            print("錯誤：", e)
+        finally:
+            cursor.close()
+        
+        lable_content = ('ISBN：{}', '書名：{}', '作者：{}', '譯者：{}', '出版社：{}')
+        
+        label_texts = [
+            'ISBN：{}'.format(search_result[0]),
+            '書名：{}'.format(search_result[1]),
+            '作者：{}'.format(search_result[2]),
+            '譯者：{}'.format(search_result[3]),
+            '出版社：{}'.format(search_result[4])
+                ]
+
+        for i, text in enumerate(label_texts):
+            label = Label(self.user_platform, text=text, height=1)
+            label.grid(row=i + 1, column=1)    
+        
+        self.book_name.delete(0, END)
+
+        
             
 class Librarian():
     
@@ -204,64 +256,40 @@ class Librarian():
 
         self.platform = Tk(className = '新增書籍')
 
-        add_isbn_label = Label(self.platform,
-                       text = 'ISBN編碼：',
-                       height = 1)
-        add_isbn_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_isbn = Entry(self.platform,
-                      width = 20)
+        add_isbn_label = Label(self.platform, text = 'ISBN編碼：', height = 1)
+        add_isbn_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_isbn = Entry(self.platform, width = 20)
         self.add_isbn.pack(side = LEFT)
 
-        add_bookname_label = Label(self.platform,
-                       text = '書籍名稱：',
-                       height = 1)
-        add_bookname_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_bookname = Entry(self.platform,
-                      width = 20)
+        add_bookname_label = Label(self.platform, text = '書籍名稱：', height = 1)
+        add_bookname_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_bookname = Entry(self.platform, width = 20)
         self.add_bookname.pack(side = LEFT)
 
-        add_author_label = Label(self.platform,
-                       text = '作者：',
-                       height = 1)
-        add_author_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_author = Entry(self.platform,
-                      width = 20)
+        add_author_label = Label(self.platform, text = '作者：', height = 1)
+        add_author_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_author = Entry(self.platform, width = 20)
         self.add_author.pack(side = LEFT)
 
-        add_translator_label = Label(self.platform,
-                       text = '譯者：',
-                       height = 1)
-        add_translator_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_translator = Entry(self.platform,
-                      width = 20)
+        add_translator_label = Label(self.platform, text = '譯者：', height = 1)
+        add_translator_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_translator = Entry(self.platform, width = 20)
         self.add_translator.pack(side = LEFT)
 
-        add_publisher_label = Label(self.platform,
-                       text = '出版社：',
-                       height = 1)
-        add_publisher_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_publisher = Entry(self.platform,
-                      width = 20)
+        add_publisher_label = Label(self.platform, text = '出版社：', height = 1)
+        add_publisher_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_publisher = Entry(self.platform, width = 20)
         self.add_publisher.pack(side = LEFT)
 
-        add_nums_label = Label(self.platform,
-                       text = '書本數量：',
-                       height = 1)
-        add_nums_label.pack(side = LEFT,
-                    fill='x',
-                    expand=True)
-        self.add_nums = Entry(self.platform,
-                      width = 20)
+        add_nums_label = Label(self.platform, text = '書本數量：', height = 1)
+        add_nums_label.pack(side = LEFT, fill='x', expand=True)
+        
+        self.add_nums = Entry(self.platform, width = 20)
         self.add_nums.pack(side = LEFT)
 
         adding_button = Button(self.platform,
@@ -384,20 +412,6 @@ class System():
             print("使用者資料庫建立錯誤：", e)
         finally:
             cursor.close()
-
-
-search_book =  input('是否要查詢書籍? y/n')   
-if search_book == 'y':
-    the_book_name = input('書籍名稱：')
-    amy_account.search_id(str(the_book_name))
-    
-    borrow_book = input('是否要借閱書籍? y/n')
-    if borrow_book == 'y':
-        amy_account.borrow_books()
-    else:
-        print('不借閱書籍 - {}'.format(the_book_name))
-else:
-    print('不查詢書籍')
 
 
 #origin_table = System()
