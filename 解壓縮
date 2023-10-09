@@ -1,8 +1,0 @@
-from zipfile import ZipFile
-
-file_name = input()
-
-with ZipFile(file_name, 'r') as zip:
-    zip.printdir()  #列出zip檔中的所有檔名
-    zip.extractall()
-    print('檔案已解壓縮')
